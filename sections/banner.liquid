@@ -1,0 +1,237 @@
+<section class="custom-banner">
+  <header>
+    <nav>
+      <div class="container">
+        <div class="wrapper">
+          <!-- Burger (hidden on large, visible on small) -->
+          <button class="burger-menu" aria-label="Toggle Menu">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <line
+                x1="3"
+                y1="6"
+                x2="21"
+                y2="6"></line>
+              <line
+                x1="3"
+                y1="12"
+                x2="21"
+                y2="12"></line>
+              <line
+                x1="3"
+                y1="18"
+                x2="21"
+                y2="18"></line>
+            </svg>
+          </button>
+
+          <div class="logo">
+            {{ section.settings.logo_text }}
+          </div>
+          <div class="tagline">
+            {{ section.settings.tagline }}
+          </div>
+          <button class="btn gift-btn">
+            {{ section.settings.nav_button_text }}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <line
+                x1="3"
+                y1="12"
+                x2="21"
+                y2="12" />
+              <polyline points="15 6 21 12 15 18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+
+      <!-- Dropdown for mobile -->
+      <div class="mobile-dropdown">
+        <button class="mobileBtn">
+          {{ section.settings.nav_button_text }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <line
+              x1="3"
+              y1="12"
+              x2="21"
+              y2="12" />
+            <polyline points="15 6 21 12 15 18" />
+          </svg>
+        </button>
+      </div>
+
+
+    </nav>
+
+    <div class="banner">
+      <img
+        src="{{ 'Frame.svg' | asset_url }}"
+        alt="Banner"
+        width="1200"
+        height="400" />
+    </div>
+
+    <div class="hero flex">
+      <div class="left container">
+        <h1>{{ section.settings.hero_title }}</h1>
+        <div class="desc">
+          <p>
+            {{ section.settings.hero_text }}
+          </p>
+          <div class="tagline">
+            {{ section.settings.tagline }}
+          </div>
+        </div>
+
+
+        <button class="btn">
+          {{ section.settings.hero_button_text }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <line
+              x1="3"
+              y1="12"
+              x2="21"
+              y2="12" />
+            <polyline points="15 6 21 12 15 18" />
+          </svg>
+        </button>
+      </div>
+      <div class="right">
+        <img
+          src="{{ 'Frame.svg' | asset_url }}"
+          alt="Banner"
+          width="1200"
+          height="400" />
+      </div>
+    </div>
+
+    <div class="sizes">
+      {{ section.settings.sizes_text }}
+    </div>
+  </header>
+
+</section>
+
+
+<script>
+  
+  let menuMob = document.querySelector(".burger-menu")
+  let dropdown = document.querySelector(".mobile-dropdown")
+  let btnGift = document.querySelector(".mobileBtn")
+  
+  
+  menuMob.addEventListener("click", () => {
+  if (dropdown.style.height === "auto") {
+    dropdown.style.height = "0";
+    dropdown.style.padding = "0";
+    btnGift.style.display = "none";
+    btnGift.style.opacity = "0";
+  } else {
+    dropdown.style.height = "auto";
+    dropdown.style.paddingTop = "20px";
+    dropdown.style.paddingBottom = "20px";
+    btnGift.style.display = "flex";
+    btnGift.style.opacity = "1";
+  }
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Custom Banner",
+    "settings": [
+      {
+        "type": "text",
+        "id": "logo_text",
+        "label": "Logo Text",
+        "default": "TISSO VISSION"
+      },
+      {
+        "type": "text",
+        "id": "tagline",
+        "label": "Tagline",
+        "default": "Find the ideal gift for your loved ones."
+      },
+      {
+        "type": "text",
+        "id": "nav_button_text",
+        "label": "Nav Button Text",
+        "default": "Choose Gift"
+      },
+      {
+        "type": "url",
+        "id": "nav_button_link",
+        "label": "Nav Button Link"
+      }, {
+        "type": "image_picker",
+        "id": "banner_image",
+        "label": "Banner Image"
+      }, {
+        "type": "text",
+        "id": "hero_title",
+        "label": "Hero Title",
+        "default": "The Gift Guide"
+      }, {
+        "type": "textarea",
+        "id": "hero_text",
+        "label": "Hero Description",
+        "default": " Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season. "
+      }, {
+        "type": "text",
+        "id": "hero_button_text",
+        "label": "Hero Button Text",
+        "default": "Shop Now"
+      }, {
+        "type": "url",
+        "id": "hero_button_link",
+        "label": "Hero Button Link"
+      }, {
+        "type": "image_picker",
+        "id": "hero_image",
+        "label": "Hero Side Image"
+      }, {
+        "type": "text",
+        "id": "sizes_text",
+        "label": "Sizes Line Text",
+        "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Custom Banner"
+      }
+    ]
+  }
+{% endschema %}

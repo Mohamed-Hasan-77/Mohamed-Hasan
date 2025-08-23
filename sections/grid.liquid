@@ -1,0 +1,312 @@
+{% assign collection = collections['test'] %}
+
+<section class="custom-grid">
+  <div class="container">
+    {% if section.settings.heading != blank %}
+      <h2 class="grid-heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="grid-wrapper">
+      {% if collection != blank %}
+        {% for product in collection.products limit: 6 %}
+          <div class="grid-item">
+            <div class="image-wrapper">
+              <img
+                src="{{ product.featured_image | image_url: width: 400 }}"
+                alt="{{ product.title | escape }}"
+                width="400"
+                height="400">
+            </div>
+            <span
+              class="open"
+              data-title="{{ product.title | escape }}"
+              data-price="{{ product.price | money }}"
+              data-product='{{ product | json | escape }}'
+              data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+              data-price="{{ product.price | money }}"
+              data-desc="{{ product.description | strip_html | truncate: 150 }}"
+              data-image="{{ product.featured_image | image_url: width: 600 }}"
+              data-handle="{{ product.handle }}">
+              +
+            </span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No products found in this collection.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal hidden" id="modal">
+    <div class="close" id="close-modal">
+      <!-- Close SVG -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <line
+          x1="18"
+          y1="6"
+          x2="6"
+          y2="18" />
+        <line
+          x1="6"
+          y1="6"
+          x2="18"
+          y2="18" />
+      </svg>
+    </div>
+
+    <div class="product-info">
+      <div class="product-details">
+        <div class="image">
+          <img
+            id="modal-image"
+            src="{{ 'placeholder.png' | asset_url }}"
+            alt="Product image"
+            width="600"
+            height="600" />
+        </div>
+
+        <div class="data">
+          <h2 class="product-title" id="modal-title"></h2>
+          <p class="product-price" id="modal-price"></p>
+          <p class="product-desc" id="modal-desc"></p>
+        </div>
+      </div>
+
+
+      <div class="color-section"></div>
+
+      <div class="size-section">
+        <select class="size-select" id="sizeSelect"></select>
+        <div class="arrow" id="arrow">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </div>
+
+      <button class="add-to-cart" id="add-to-cart">
+        <span>Add to Cart</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <line
+            x1="3"
+            y1="12"
+            x2="21"
+            y2="12" /> <polyline points="15 6 21 12 15 18" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  
+    const select = document.getElementById("sizeSelect");
+    const arrow = document.getElementById("arrow");
+    let isOpen = false;
+    
+    select.addEventListener("click", () => {
+    isOpen = !isOpen; 
+    arrow.classList.toggle("rotate", isOpen);
+    });
+    
+    // When clicking outside close
+    document.addEventListener("click", (e) => {
+    if (!select.contains(e.target)) {
+      isOpen = false;
+      arrow.classList.remove("rotate");
+    }
+  });
+  
+  
+  
+  document.addEventListener('DOMContentLoaded', function() {
+  // Get modal elements
+  var modalOverlay = document.getElementById('modal-overlay');
+  var modal = document.getElementById('modal');
+  var closeModalBtn = document.getElementById('close-modal');
+  var addToCartBtn = document.getElementById('add-to-cart');
+  
+  // Get modal content elements
+  var modalImage = document.getElementById('modal-image');
+  var modalTitle = document.getElementById('modal-title');
+  var modalPrice = document.getElementById('modal-price');
+  var modalDesc = document.getElementById('modal-desc');
+  
+  // Open modal on product data
+  document.querySelectorAll('.grid-item .open').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      modalTitle.textContent = btn.getAttribute('data-title');
+      modalPrice.textContent = btn.getAttribute('data-price');
+      modalDesc.textContent = btn.getAttribute('data-desc');
+      modalImage.src = btn.getAttribute('data-image');
+      modalOverlay.classList.remove('hidden');
+      modal.classList.remove('hidden');
+  
+    const variantId = btn.dataset.variantId;
+    addToCartBtn.dataset.variantId = variantId;
+  
+  
+    });
+  });
+  
+  // Close modal
+  closeModalBtn.addEventListener('click', function() {
+    modalOverlay.classList.add('hidden');
+    modal.classList.add('hidden');
+    modalImage.src = "{{ 'placeholder.png' | asset_url }}";
+    modalTitle.textContent = '';
+    modalPrice.textContent = '';
+    modalDesc.textContent = '';
+  });
+  
+  // Optional: Close modal when clicking outside modal
+  modalOverlay.addEventListener('click', function(e) {
+    if (e.target === modalOverlay) {
+      closeModalBtn.click();
+    }
+  });
+  });
+  
+  // Get product data after opening
+  document.querySelectorAll(".open").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const product = JSON.parse(btn.dataset.product);
+      // console.log("Full Product :", product);
+      renderProductOptions(product);
+    });
+  });
+  
+  
+  function renderProductOptions(product) {
+  const sizeSelect = document.getElementById("sizeSelect");
+  const colorSection = document.querySelector(".color-section");
+  
+  //  Clear size and color prev data
+  sizeSelect.innerHTML = "";
+  colorSection.innerHTML = "";
+  
+  // get sizes and colors
+  const sizes = [...new Set(product.variants.map(v => v.option1))];
+  const colors = [...new Set(product.variants.map(v => v.option2))];
+  
+  // put sizes in html
+  sizes.forEach(size => {
+    const option = document.createElement("option");
+    option.value = size;
+    option.textContent = size;
+    sizeSelect.appendChild(option);
+  });
+  
+  // put colors into radio buttons
+  colors.forEach((color, index) => {
+    const id = `color-${color.toLowerCase()}`;
+    
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "color";
+    input.value = color;
+    input.id = id;
+    if (index === 0) input.checked = true; 
+  
+    const label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.textContent = color;
+    label.classList.add("color-btn");
+  
+    // left border color
+    label.style.borderLeftColor = color.toLowerCase();
+  
+    colorSection.appendChild(input);
+    colorSection.appendChild(label);
+  });
+  }
+  
+  
+  
+  
+  // Add To Cart 
+  document.querySelectorAll(".add-to-cart").forEach(button => {
+  button.addEventListener("click", () => {
+    const variantId = button.dataset.variantId;
+    console.log('variantId:', variantId);
+  
+    fetch("/cart/add.js", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json" 
+      },
+      body: JSON.stringify({
+        id: variantId,
+        quantity: 1
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(`${data.title} added to cart!`);
+    })
+    .catch(err => console.error("Error adding to cart:", err));
+  });
+  });
+  
+  
+  fetch("/cart.js")
+  .then(res => res.json())
+  .then(cart => {
+    console.log("cart:", cart);
+  });
+</script>
+
+
+{% schema %}
+  {
+    "name": "Custom Grid",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Grid Heading",
+        "default": "Tisso vision in the wild"
+      }, {
+        "type": "collection",
+        "id": "collection",
+        "label": "Choose a collection"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Custom Grid"
+      }
+    ]
+  }
+{% endschema %}
